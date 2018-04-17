@@ -6,22 +6,17 @@
 	<meta name="description" content="A fast, simple, cross-platform, and configurable stock chart library created using canvas.">
 	<meta name="keywords" content="chart, canvas, stock chart, fast, simple, cross-platform, configurable">
 	<script src="./clchart.js"></script>
-	<script src="./index_data.js"></script>
+	<script src="./stockdata.js"></script>
+	<script src="./menus.js"></script>
 	<link rel="stylesheet" type="text/css" href="./style.css" />
 </head>
 
 <body>
 	<div class="container">
 		<div class="header-container">
-			<div class="btn-group">
-				<button onclick="handleMin('SH000001')" class="action-button shadow animate">分时(指数)</button>
-				<button onclick="handleFiveDay('SH000001')" class="action-button shadow animate">五日(指数)</button>
-				<button onclick="handleMin('SZ300545')" class="action-button shadow animate">分时</button>
-				<button onclick="handleFiveDay('SZ300545')" class="action-button shadow animate">五日</button>
-				<button onclick="handleKline('DAY')" class="action-button shadow animate">日K</button>
-				<button onclick="handleKline('WEEK')" class="action-button shadow animate">周线</button>
-				<button onclick="handleKline('MON')" class="action-button shadow animate">月线</button>
-				<button onclick="handleKline('M5')" class="action-button shadow animate">5分钟</button>
+			<div id="drawMenu">
+			</div>
+			<div id="langMenu">
 			</div>
 		</div>
 		<div class="chart-container">
@@ -142,7 +137,7 @@
 			Chart.onPaint();
 		}
 		// 画日线
-		function handleKline(peroid) {
+		function handleKline(fullCode, peroid) {
 			let source = peroid;
  			if (peroid ==='WEEK'||peroid==='MON') source = 'DAY';
 			Chart.clear();
@@ -197,10 +192,60 @@
 			Chart.onPaint();
 		}
 
-		window.onload = function () {
-			handleMin('SH000001')
-		};		
 
+		const menuTypes = {
+			MIN: handleMin,
+			DAY5: handleFiveDay,
+			MIN: handleMin,
+			DAY5: handleFiveDay,
+			DAY: handleKline,
+			WEEK: handleKline,
+			MON: handleKline,
+			M5: handleKline
+		}
+
+		// 画图
+		function drawChart(data) {
+			data = data || {};
+			var drawFunc = menuTypes[data.type];
+			if (typeof drawFunc === 'function') {
+				drawFunc(data.fc, data.type);
+			}
+		}
+
+		var typeMenusCfg = [
+			{ type: "MIN", fc: "SH000001", label: "分时(指数)" },
+			{ type: "DAY5", fc: "SH000001", label: "五日(指数)" },
+			{ type: "MIN", fc: "SZ300545", label: "分时" },
+			{ type: "DAY5", fc: "SZ300545", label: "五日" },
+			{ type: "DAY", fc: "SZ300545", label: "日K" },
+			{ type: "WEEK", fc: "SZ300545", label: "周线" },
+			{ type: "MON", fc: "SZ300545", label: "月线" },
+			{ type: "M5", fc: "SZ300545", label: "5分钟" }
+		]
+		var langMenusCfg = [
+			{ type: "zh", label: "中文" },
+			{ type: "en", label: "English" }
+		]
+		var drawMenus
+		var langMenus
+		window.onload = function () {
+			drawChart(typeMenusCfg[0]);
+			drawMenus = new ListMenus('drawMenu', typeMenusCfg)
+			drawMenus.createMenus(function(activeData) {
+				drawChart(activeData)
+			})
+			langMenus = new ListMenus('langMenu', langMenusCfg)
+			langMenus.createMenus(function(activeData) {
+				console.log(activeData)
+			})
+		};
+		window.onresize = function () {
+			canvas.width = canvas.clientWidth * window.devicePixelRatio
+			canvas.height = canvas.clientHeight * window.devicePixelRatio
+			drawChart(drawMenus.active)
+		}
+		
 	</script>
 </body>
 
