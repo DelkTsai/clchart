@@ -59,12 +59,20 @@ html, body, .container {
 
 .chart-container {
   height: calc(100% - 50px);
+  position: relative;
 }
 
-#myChart {
+.chart-canvas {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+#cursorChart {
+  background:rgba(255,255,255,0);
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .menu-container {
